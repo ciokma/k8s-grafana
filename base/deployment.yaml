@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: devops-monitoring
+  labels:
+    app: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      securityContext:
+        runAsUser: 1000  # Ejecutar como usuario ubuntu
+        runAsGroup: 1000 # Grupo ubuntu
+        fsGroup: 1000    # Asegura permisos de grupo para volúmenes
+      containers:
+      - name: grafana
+        image: grafana/grafana:11.3.0  # Cambiar a imagen del catálogo de Red Hat si es necesario
+        ports:
+          - containerPort: 3000
+        volumeMounts:
+          - name: grafana-storage
+            mountPath: /var/lib/grafana
+          - name: grafana-config
+            mountPath: /etc/grafana/grafana.ini
+            subPath: grafana.ini  # Asegura que solo se monte el archivo específico
+        securityContext:
+          runAsUser: 1000  # Usuario 'ubuntu'
+          runAsGroup: 1000 # Grupo 'ubuntu'
+      volumes:
+        - name: grafana-storage
+          hostPath:
+            path: /data/grafana  # Ruta en el nodo donde se guardarán los datos de Grafana
+            type: DirectoryOrCreate
+        - name: grafana-config
+          configMap:
+            name: grafana-config
