@@ -35,9 +35,7 @@ spec:
           runAsGroup: 1000 # Grupo 'ubuntu'
       volumes:
         - name: grafana-storage
-          hostPath:
-            path: /data/grafana  # Ruta en el nodo donde se guardarán los datos de Grafana
-            type: DirectoryOrCreate
+          emptyDir: {}  # Almacenamiento temporal que se elimina cuando el pod se destruye
         - name: grafana-config
           configMap:
             name: grafana-config
